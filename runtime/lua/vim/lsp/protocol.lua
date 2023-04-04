@@ -769,6 +769,9 @@ function protocol.make_client_capabilities()
     callHierarchy = {
       dynamicRegistration = false,
     },
+    typeHierarchy = {
+      dynamicRegistration = false,
+    },
     experimental = nil,
     window = {
       workDoneProgress = true,
@@ -884,6 +887,7 @@ function protocol._resolve_capabilities_compat(server_capabilities)
   general_properties.document_range_formatting = server_capabilities.documentRangeFormattingProvider
     or false
   general_properties.call_hierarchy = server_capabilities.callHierarchyProvider or false
+  general_properties.call_hierarchy = server_capabilities.typeHierarchyProvider or false
   general_properties.execute_command = server_capabilities.executeCommandProvider ~= nil
 
   if server_capabilities.renameProvider == nil then

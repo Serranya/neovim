@@ -36,6 +36,60 @@ function M.server_ready()
   return not not vim.lsp.buf_notify(0, 'window/progress', {})
 end
 
+--@private
+local function pick_type_hierarchy_item(type_hierarchy_items)
+  --TODO reuse pick_call_hierarchy_item?
+  if not type_hierarchy_items then
+    return
+  end
+  if #type_hierarchy_items == 1 then
+    return type_hierarchy_items[1]
+  end
+  local items = {}
+  for i, item in pairs(type_hierarchy_items) do
+    local entry = item.detail or item.name
+    table.insert(items, string.format('%d. %s', i, entry))
+  end
+  local choice = vim.fn.inputlist(items)
+  if choice < 1 or choice > #items then
+    return
+  end
+  return choice
+end
+
+-- TODO doc
+local function type_hierarchy(method)
+  --TODO capabilities
+  local params = util.make_position_params()
+  request('textDocument/prepareTypeHierarchy', params, function(err, result, ctx)
+    if err then
+      vim.notify(err.message, vim.log.levels.WARN)
+      return
+    end
+
+    vim.api.nvim_out_write(vim.inspect(result))
+    local type_hierarchy_item = pick_type_hierarchy_item(result)
+    local client = vim.lsp.get_client_by_id(ctx.client_id)
+    if client then
+      client.request(method, { item = type_hierarchy_item }, nil, ctx.bufnr)
+    else
+      vim.notify(
+        string.format('Client with id=%d disappeared during type hierarchy request', ctx.client_id),
+        vim.log.levels.WARN
+      )
+    end
+  end)
+end
+
+function M.super_types()
+  vim.api.nvim_out_write('start super')
+  type_hierarchy('typeHierarchy/supertypes')
+end
+
+function M.sub_types()
+  type_hierarchy('typeHierarchy/subtypes')
+end
+
 --- Displays hover information about the symbol under the cursor in a floating
 --- window. Calling the function twice will jump into the floating window.
 function M.hover()

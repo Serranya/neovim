@@ -45,6 +45,7 @@ lsp._request_name_to_capability = {
   ['textDocument/typeDefinition'] = { 'typeDefinitionProvider' },
   ['textDocument/documentSymbol'] = { 'documentSymbolProvider' },
   ['textDocument/prepareCallHierarchy'] = { 'callHierarchyProvider' },
+  ['textDocument/prepareTypeHierarchy'] = { 'typeHierarchyProvider' },
   ['textDocument/rename'] = { 'renameProvider' },
   ['textDocument/prepareRename'] = { 'renameProvider', 'prepareProvider' },
   ['textDocument/codeAction'] = { 'codeActionProvider' },

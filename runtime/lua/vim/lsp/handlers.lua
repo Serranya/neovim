@@ -471,6 +471,32 @@ M['callHierarchy/incomingCalls'] = make_call_hierarchy_handler('from')
 --see: https://microsoft.github.io/language-server-protocol/specifications/specification-current/#callHierarchy_outgoingCalls
 M['callHierarchy/outgoingCalls'] = make_call_hierarchy_handler('to')
 
+local make_type_hierarchy_handler = function()
+  return function(_, result)
+    if not result then
+      return
+    end
+    local items = {}
+    for _, type_hierarchy_item in pairs(result) do
+        table.insert(items, {
+          filename = assert(vim.uri_to_fname(type_hierarchy_item.uri)),
+          text = type_hierarchy_item.detail or type_hierarchy_item.name,
+          lnum = type_hierarchy_item.range.start.line + 1,
+          col = type_hierarchy_item.range.start.character + 1,
+      })
+    end
+    vim.fn.setqflist({}, ' ', { title = 'LSP call hierarchy', items = items })
+    api.nvim_command('botright copen')
+  end
+end
+
+--see: https://microsoft.github.io/language-server-protocol/specifications/specification-current/#typeHierarchy_supertypes
+M['typeHierarchy/supertypes'] = make_type_hierarchy_handler()
+
+--see: https://microsoft.github.io/language-server-protocol/specifications/specification-current/#typeHierarchy_subtypes
+M['typeHierarchy/subtypes'] = make_type_hierarchy_handler()
+
+
 --see: https://microsoft.github.io/language-server-protocol/specifications/specification-current/#window_logMessage
 M['window/logMessage'] = function(_, result, ctx, _)
   local message_type = result.type
